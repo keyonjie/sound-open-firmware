@@ -51,12 +51,12 @@ static inline void interrupt_unregister(int irq)
 
 static inline uint32_t interrupt_enable(uint32_t irq)
 {
-	return arch_interrupt_enable_mask(1 << irq);
+	return 0;//arch_interrupt_enable_mask(1 << irq);
 }
 
 static inline uint32_t interrupt_disable(uint32_t irq)
 {
-	return arch_interrupt_disable_mask(1 <<irq);
+	return 0;//arch_interrupt_disable_mask(1 <<irq);
 }
 
 static inline void interrupt_set(int irq)

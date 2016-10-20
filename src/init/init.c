@@ -40,8 +40,13 @@
 #include <reef/work.h>
 #include <reef/trace.h>
 #include <platform/platform.h>
+#include <config.h>
 
+#if defined CONFIG_HOST
+int gmain(int argc, char *argv[])
+#else
 int main(int argc, char *argv[])
+#endif
 {
 	int err;
 
