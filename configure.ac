@@ -37,6 +37,7 @@ AC_ARG_WITH([arch],
 case "$with_arch" in
     xtensa*)
 	AM_CONDITIONAL(BUILD_XTENSA, true)
+	AM_CONDITIONAL(BUILD_HOST, false)
 
 	ARCH_CFLAGS="-mtext-section-literals"
 	AC_SUBST(ARCH_CFLAGS)
@@ -52,6 +53,26 @@ case "$with_arch" in
 	AC_SUBST(ARCH_ASFLAGS)
 
 	ARCH="xtensa"
+	AC_SUBST(ARCH)
+    ;;
+    host*)
+	AM_CONDITIONAL(BUILD_XTENSA, false)
+	AM_CONDITIONAL(BUILD_HOST, true)
+
+#	ARCH_CFLAGS="-mtext-section-literals"
+#	AC_SUBST(ARCH_CFLAGS)
+
+#	ARCH_LDFLAGS="-nostdlib -Wl,--no-check-sections -u call_user_start -Wl,-static"
+#	AC_SUBST(XTENSA_LDFLAGS)
+
+	# extra CFLAGS defined here otherwise configure working gcc tests fails.
+#	CFLAGS="${CFLAGS:+$CFLAGS }-mlongcalls"
+#	LDFLAGS="${LDFLAGS:+$LDFLAGS }-nostdlib"
+
+	#ARCH_ASFLAGS=""
+#	AC_SUBST(ARCH_ASFLAGS)
+
+	ARCH="host"
 	AC_SUBST(ARCH)
     ;;
     *)
@@ -72,6 +93,7 @@ case "$with_platform" in
 	AM_CONDITIONAL(BUILD_HASWELL, false)
 	AM_CONDITIONAL(BUILD_BROADWELL, false)
 	AM_CONDITIONAL(BUILD_BROXTON, false)
+	AM_CONDITIONAL(BUILD_HOST, false)
 
 	PLATFORM_LDSCRIPT="baytrail.x"
 	AC_SUBST(PLATFORM_LDSCRIPT)
@@ -93,6 +115,7 @@ case "$with_platform" in
 	AM_CONDITIONAL(BUILD_HASWELL, false)
 	AM_CONDITIONAL(BUILD_BROADWELL, false)
 	AM_CONDITIONAL(BUILD_BROXTON, false)
+	AM_CONDITIONAL(BUILD_HOST, false)
 
 	PLATFORM_LDSCRIPT="baytrail.x"
 	AC_SUBST(PLATFORM_LDSCRIPT)
@@ -107,6 +130,28 @@ case "$with_platform" in
 	AC_SUBST(XTENSA_CORE)
 
 	AC_DEFINE([CONFIG_CHERRYTRAIL], [1], [Configure for Cherrytrail])
+    ;;
+    host*)
+	AM_CONDITIONAL(BUILD_BAYTRAIL, false)
+	AM_CONDITIONAL(BUILD_CHERRYTRAIL, false)
+	AM_CONDITIONAL(BUILD_HASWELL, false)
+	AM_CONDITIONAL(BUILD_BROADWELL, false)
+	AM_CONDITIONAL(BUILD_BROXTON, false)
+	AM_CONDITIONAL(BUILD_HOST, true)
+
+#	PLATFORM_LDSCRIPT="baytrail.x"
+#	AC_SUBST(PLATFORM_LDSCRIPT)
+
+	PLATFORM="host"
+	AC_SUBST(PLATFORM)
+
+	FW_NAME="host"
+	AC_SUBST(FW_NAME)
+
+#	XTENSA_CORE="hifi2_std"
+#	AC_SUBST(XTENSA_CORE)
+
+	AC_DEFINE([CONFIG_HOST], [1], [Configure for Host test harness])
     ;;
     *)
         AC_MSG_ERROR([Host platform not specified])
@@ -149,6 +194,8 @@ AC_CONFIG_FILES([
 	src/arch/xtensa/include/Makefile
 	src/arch/xtensa/hal/Makefile
 	src/arch/xtensa/xtos/Makefile
+	src/arch/host/Makefile
+	src/arch/host/include/Makefile
 	src/audio/Makefile
 	src/drivers/Makefile
 	src/include/Makefile
@@ -163,6 +210,9 @@ AC_CONFIG_FILES([
 	src/platform/baytrail/include/platform/Makefile
 	src/platform/baytrail/include/xtensa/Makefile
 	src/platform/baytrail/include/xtensa/config/Makefile
+	src/platform/host/Makefile
+	src/platform/host/include/Makefile
+	src/platform/host/include/platform/Makefile
 ])
 AC_OUTPUT
 

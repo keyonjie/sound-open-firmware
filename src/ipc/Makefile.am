@@ -18,6 +18,11 @@ libipc_a_SOURCES = \
 	dma-copy.c
 endif
 
+if BUILD_HOST
+libipc_a_SOURCES = \
+	ipc.c
+endif
+
 libipc_a_CFLAGS = \
 	$(ARCH_CFLAGS) \
 	$(ARCH_INCDIR) \
