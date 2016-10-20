@@ -234,7 +234,7 @@ static int dai_playback_params(struct comp_dev *dev,
 				goto err_unwind;
 
 			elem->size = dma_period_desc->size;
-			elem->src = (uint32_t)(dma_buffer->r_ptr) +
+			elem->src = dma_buffer->r_ptr +
 				i * dma_period_desc->size;
 
 			elem->dest = dai_fifo(dd->ssp, params->direction);
@@ -295,7 +295,7 @@ static int dai_capture_params(struct comp_dev *dev,
 				goto err_unwind;
 
 			elem->size = dma_period_desc->size;
-			elem->dest = (uint32_t)(dma_buffer->w_ptr) +
+			elem->dest = dma_buffer->w_ptr +
 				i * dma_period_desc->size;
 			elem->src = dai_fifo(dd->ssp, params->direction);
 			list_item_append(&elem->list, &config->elem_list);

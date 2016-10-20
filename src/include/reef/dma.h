@@ -62,8 +62,8 @@
 struct dma;
 
 struct dma_sg_elem {
-	uint32_t src;
-	uint32_t dest;
+	void *src;
+	void *dest;
 	uint32_t size;
 	struct list_item list;
 };

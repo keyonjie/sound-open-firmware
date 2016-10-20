@@ -110,7 +110,7 @@ struct dai_config {
 };
 
 struct dai_plat_fifo_data {
-	uint32_t offset;
+	void *offset;
 	uint32_t width;
 	uint32_t depth;
 	uint32_t watermark;

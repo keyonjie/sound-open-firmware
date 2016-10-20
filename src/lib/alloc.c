@@ -83,7 +83,7 @@ struct block_map {
 	uint16_t free_count;	/* number of free blocks */
 	uint16_t first_free;	/* index of first free block */
 	struct block_hdr *block;	/* base block header */
-	uint32_t base;		/* base address of space */
+	void *base;		/* base address of space */
 } __attribute__ ((packed));
 
 #define BLOCK_DEF(sz, cnt, hdr) \
@@ -128,8 +128,8 @@ extern uint32_t _stack_sentry;
 struct mm_heap {
 	uint32_t blocks;
 	struct block_map *map;
-	uint32_t heap;
-	uint32_t heap_end;
+	void *heap;
+	void *heap_end;
 	struct mm_info info;
 };
 
@@ -145,24 +145,24 @@ struct mm {
 
 struct mm memmap = {
 	.system = {
-		.heap = (uint32_t)&_system_heap,
-		.heap_end = (uint32_t)&_module_heap,
+		.heap = &_system_heap,
+		.heap_end = &_module_heap,
 		.info = {.free = SYSTEM_MEM,},
 	},
 
 	.module = {
 		.blocks = ARRAY_SIZE(mod_heap_map),
 		.map = mod_heap_map,
-		.heap = (uint32_t)&_module_heap,
-		.heap_end = (uint32_t)&_buffer_heap,
+		.heap = &_module_heap,
+		.heap_end = &_buffer_heap,
 		.info = {.free = HEAP_MOD_SIZE,},
 	},
 
 	.buffer = {
 		.blocks = ARRAY_SIZE(buf_heap_map),
 		.map = buf_heap_map,
-		.heap = (uint32_t)&_buffer_heap,
-		.heap_end = (uint32_t)&_stack_sentry,
+		.heap = &_buffer_heap,
+		.heap_end = &_stack_sentry,
 		.info = {.free = HEAP_BUF_SIZE,},
 	},
 	.total = {.free = SYSTEM_MEM + HEAP_MOD_SIZE + HEAP_BUF_SIZE,},
@@ -339,8 +339,8 @@ static void free_block(struct mm_heap *heap, int module, void *ptr)
 	for (i = 0; i < ARRAY_SIZE(mod_heap_map) - 1; i ++) {
 
 		/* is ptr in this block */
-		if ((uint32_t)ptr >= mod_heap_map[i].base &&
-			(uint32_t)ptr < mod_heap_map[i + 1].base)
+		if (ptr >= mod_heap_map[i].base &&
+			ptr < mod_heap_map[i + 1].base)
 			goto found;
 	}
 
@@ -351,7 +351,7 @@ static void free_block(struct mm_heap *heap, int module, void *ptr)
 found:
 	/* calculate block header */
 	map = &mod_heap_map[i];
-	block = ((uint32_t)ptr - map->base) / map->block_size;
+	block = (ptr - map->base) / map->block_size;
 	hdr = &map->block[block];
 
 	/* free block header and continious blocks */

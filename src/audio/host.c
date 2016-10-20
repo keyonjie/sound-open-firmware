@@ -53,7 +53,7 @@ struct hc_buf {
 	/* host buffer info */
 	struct list_item elem_list;
 	struct list_item *current;
-	uint32_t current_end;
+	void *current_end;
 };
 
 struct host_data {
@@ -394,10 +394,10 @@ static int create_local_elems(struct comp_dev *dev,
 			goto unwind;
 
 		if (params->direction == STREAM_DIRECTION_PLAYBACK)
-			e->dest = (uint32_t)(hd->dma_buffer->addr) +
+			e->dest = (hd->dma_buffer->addr) +
 				i * hd->period->size;
 		else
-			e->src = (uint32_t)(hd->dma_buffer->addr) +
+			e->src = (hd->dma_buffer->addr) +
 				i * hd->period->size;
 
 		e->size = hd->period->size;
