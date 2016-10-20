@@ -29,30 +29,19 @@
  */
 
 #include <reef/trace.h>
+#include <platform/trace.h>
 #include <stdint.h>
 
 /* trace position */
-static uint32_t trace_pos = 0;
 static uint32_t trace_enable = 1;
 
 void _trace_event(uint32_t event)
 {
-	volatile uint32_t *t =
-		(volatile uint32_t*)(MAILBOX_TRACE_BASE + trace_pos);
-
-	if (!trace_enable)
-		return;
-
-	/* write timestamp and event to trace buffer */
-	t[0] = platform_timer_get(0);
-	t[1] = event;
-
-	trace_pos += (sizeof(uint32_t) << 1);
-	if (trace_pos >= MAILBOX_TRACE_SIZE)
-		trace_pos = 0;
+	if (trace_enable)
+		platform_trace_event(event);
 }
 
 void trace_off(void)
 {
 	trace_enable = 0;
-};
+}

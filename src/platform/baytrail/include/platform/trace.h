@@ -26,59 +26,30 @@
  * POSSIBILITY OF SUCH DAMAGE.
  *
  * Author: Liam Girdwood <liam.r.girdwood@linux.intel.com>
- *         Keyon Jie <yang.jie@linux.intel.com>
  */
 
-#ifndef __INCLUDE_DEBUG__
-#define __INCLUDE_DEBUG__
+#ifndef __INCLUDE_PLATFORM_TRACE__
+#define __INCLUDE_PLATFORM_TRACE__
 
-#include <reef/mailbox.h>
-#include <platform/platform.h>
-#include <platform/debug.h>
+#include <reef/timer.h>
+#include <platform/mailbox.h>
 #include <stdint.h>
-#include <stdlib.h>
 
-/* panic reasons */
-#define PANIC_MEM	0
-#define PANIC_WORK	1
-#define PANIC_IPC	2
-#define PANIC_ARCH	3
-#define PANIC_PLATFORM	4
-#define PANIC_TASK	5
-#define PANIC_EXCEPTION	6
+/* trace position */
+static uint32_t trace_pos = 0;
 
-#define DEBUG
+static inline void platform_trace_event(uint32_t event)
+{
+	volatile uint32_t *t =
+		(volatile uint32_t*)(MAILBOX_TRACE_BASE + trace_pos);
 
-#ifdef DEBUG
+	/* write timestamp and event to trace buffer */
+	t[0] = platform_timer_get(0);
+	t[1] = event;
 
-/* dump object to start of mailbox */
-#define dump_object(__o) \
-	dbg(); \
-	dump(&__o, sizeof(__o) >> 2);
-
-/* dump object from pointer at start of mailbox */
-#define dump_object_ptr(__o) \
-	dbg(); \
-	dump(__o, sizeof(*(__o)) >> 2);
-
-#else
-
-#define dbg()
-#define dbg_at(__x)
-#define dbg_val(__v)
-#define dbg_val_at(__v, __x)
-#define dump(addr, count)
-#define dump_object(__o)
-#define dump_object_ptr(__o)
-#endif
-
-/* panic and stop executing any more code */
-#define panic(_p) \
-	do { \
-		interrupt_global_disable(); \
-		dbg_val(0xdead0000 | _p) \
-		platform_panic(_p); \
-		while(1) {}; \
-	} while (0);
+	trace_pos += (sizeof(uint32_t) << 1);
+	if (trace_pos >= MAILBOX_TRACE_SIZE)
+		trace_pos = 0;
+}
 
 #endif
