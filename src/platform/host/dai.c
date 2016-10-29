@@ -30,11 +30,8 @@
 
 #include <reef/reef.h>
 #include <reef/dai.h>
-#include <reef/ssp.h>
+#include <reef/host-vssp.h>
 #include <reef/stream.h>
-#include <reef/audio/component.h>
-#include <platform/memory.h>
-#include <platform/interrupt.h>
 #include <platform/dma.h>
 #include <stdint.h>
 #include <string.h>
@@ -43,17 +40,41 @@ static struct dai ssp[] = {
 {
 	.type = COMP_TYPE_DAI_SSP,
 	.index = 0,
-//	.ops		= &ssp_ops,
+	.plat_data = {
+		.fifo[STREAM_DIRECTION_PLAYBACK] = {
+			.handshake	= DMA_DEV_PCM,
+		},
+		.fifo[STREAM_DIRECTION_CAPTURE] = {
+			.handshake	= DMA_DEV_PCM,
+		}
+	},
+	.ops		= &host_vssp_ops,
 },
 {
 	.type = COMP_TYPE_DAI_SSP,
 	.index = 1,
-//	.ops		= &ssp_ops,
+	.plat_data = {
+		.fifo[STREAM_DIRECTION_PLAYBACK] = {
+			.handshake	= DMA_DEV_PCM,
+		},
+		.fifo[STREAM_DIRECTION_CAPTURE] = {
+			.handshake	= DMA_DEV_PCM,
+		}
+	},
+	.ops		= &host_vssp_ops,
 },
 {
 	.type = COMP_TYPE_DAI_SSP,
 	.index = 2,
-//	.ops		= &ssp_ops,
+	.plat_data = {
+		.fifo[STREAM_DIRECTION_PLAYBACK] = {
+			.handshake	= DMA_DEV_WAV,
+		},
+		.fifo[STREAM_DIRECTION_CAPTURE] = {
+			.handshake	= DMA_DEV_WAV,
+		}
+	},
+	.ops		= &host_vssp_ops,
 },};
 
 struct dai *dai_get(uint32_t type, uint32_t index)

@@ -39,6 +39,8 @@ reef_LDADD = \
 	../../ipc/libipc.a \
 	../../drivers/libdrivers.a \
 	../../platform/$(PLATFORM)/libplatform.a \
+	../../drivers/libdrivers.a \
+	-lpthread \
 	-lc
 
 reef_LDFLAGS = \

@@ -34,24 +34,25 @@
 
 #include <stdint.h>
 #include <errno.h>
+#include <pthread.h>
 
 typedef struct {
-	volatile uint32_t lock;
+	pthread_mutex_t mutex;
 } spinlock_t;
 
 static inline void arch_spinlock_init(spinlock_t *lock)
 {
-	lock->lock = 0;
+	pthread_mutex_init(&lock->mutex, NULL);
 }
 
 static inline void arch_spin_lock(spinlock_t *lock)
 {
-
+	pthread_mutex_lock(&lock->mutex);
 }
 
 static inline void arch_spin_unlock(spinlock_t *lock)
 {
-
+	pthread_mutex_unlock(&lock->mutex);
 }
 
 #endif

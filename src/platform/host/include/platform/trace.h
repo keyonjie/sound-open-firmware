@@ -37,10 +37,36 @@
 
 static inline void platform_trace_event(uint32_t event)
 {
+	uint32_t class = event & 0xff000000;
+	char *trace;
+
+	if (class == TRACE_CLASS_IRQ)
+		trace = "irq";
+	else if (class == TRACE_CLASS_IPC)
+		trace = "ipc";
+	else if (class == TRACE_CLASS_PIPE)
+		trace = "pipe";
+	else if (class == TRACE_CLASS_HOST)
+		trace = "host";
+	else if (class == TRACE_CLASS_DAI)
+		trace = "dai";
+	else if (class == TRACE_CLASS_DMA)
+		trace = "dma";
+	else if (class == TRACE_CLASS_SSP)
+		trace = "ssp";
+	else if (class == TRACE_CLASS_COMP)
+		trace = "comp";
+	else if (class == TRACE_CLASS_WAIT)
+		trace = "wfi";
+	else {
+		fprintf(stdout, "trace 0x%x val 0x%x\n", platform_timer_get(0), event);
+		return;
+	}
+
 	/* write timestamp and event to trace buffer */
-	fprintf(stdout, "0x%x %c%c%c%c\n", platform_timer_get(0),
-		event & 0xff, (event >> 8) & 0xff, (event >> 16) & 0xff,
-		(event >> 24) & 0xff);
+	fprintf(stdout, "trace 0x%x %s %c%c%c\n", platform_timer_get(0),
+		trace, (event >> 16) & 0xff, (event >> 8) & 0xff,
+		(event >> 0) & 0xff);
 }
 
 #endif

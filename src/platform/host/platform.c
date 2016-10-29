@@ -45,6 +45,7 @@
 #include <reef/ipc.h>
 #include <reef/trace.h>
 #include <reef/audio/component.h>
+#include <config.h>
 #include <string.h>
 
 static const struct sst_intel_ipc_fw_ready ready = {
@@ -109,6 +110,9 @@ static struct timer platform_ext_timer = {
 
 int platform_init(void)
 {
+	struct dma *dmac0, *dmac1;
+	struct dai *ssp0, *ssp1, *ssp2;
+
 	trace_point(TRACE_BOOT_PLATFORM_MBOX);
 
 	trace_point(TRACE_BOOT_PLATFORM_SHIM);
@@ -129,6 +133,35 @@ int platform_init(void)
 	/* initialise the host IPC mechanisms */
 	trace_point(TRACE_BOOT_PLATFORM_IPC);
 	ipc_init();
+
+	/* init DMACs */
+	trace_point(TRACE_BOOT_PLATFORM_DMA);
+	dmac0 = dma_get(DMA_ID_DMAC0);
+	if (dmac0 == NULL)
+		return -ENODEV;
+	dma_probe(dmac0);
+
+	dmac1 = dma_get(DMA_ID_DMAC1);
+	if (dmac1 == NULL)
+		return -ENODEV;
+	dma_probe(dmac1);
+
+	/* init SSP ports */
+	trace_point(TRACE_BOOT_PLATFORM_SSP);
+	ssp0 = dai_get(COMP_TYPE_DAI_SSP, 0);
+	if (ssp0 == NULL)
+		return -ENODEV;
+	dai_probe(ssp0);
+
+	ssp1 = dai_get(COMP_TYPE_DAI_SSP, 1);
+	if (ssp1 == NULL)
+		return -ENODEV;
+	dai_probe(ssp1);
+
+	ssp2 = dai_get(COMP_TYPE_DAI_SSP, 2);
+	if (ssp2 == NULL)
+		return -ENODEV;
+	dai_probe(ssp2);
 
 	return 0;
 }

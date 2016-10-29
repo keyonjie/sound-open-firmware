@@ -32,6 +32,8 @@
 
 #include <platform/timer.h>
 #include <stdint.h>
+#include <sys/time.h>
+#include <stdio.h>
 
 void platform_timer_start(struct timer *timer)
 {
@@ -55,7 +57,13 @@ void platform_timer_clear(struct timer *timer)
 
 }
 
+// TODO: need 64bit time
 uint32_t platform_timer_get(struct timer *timer)
 {
-	return 0;
+	struct timeval tv;
+
+	gettimeofday(&tv, NULL);
+
+	//printf(" %ld %ld\n", tv.tv_sec, tv.tv_usec);
+	return tv.tv_usec;
 }

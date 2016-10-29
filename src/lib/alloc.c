@@ -36,6 +36,7 @@
 #include <reef/lock.h>
 #include <platform/memory.h>
 #include <stdint.h>
+#include <config.h>
 
 /* debug to set memory value on every allocation */
 #define DEBUG_BLOCK_ALLOC		0
@@ -119,11 +120,18 @@ static struct block_map buf_heap_map[] = {
 	BLOCK_DEF(1024, HEAP_BUF_COUNT, buf_block1024),
 };
 
+#if CONFIG_HOST
+extern void *_system_heap;
+extern void *_module_heap;
+extern void *_buffer_heap;
+extern void *_stack_sentry;
+#else
 /* memory heap start locations from linker */
 extern uint32_t _system_heap;
 extern uint32_t _module_heap;
 extern uint32_t _buffer_heap;
 extern uint32_t _stack_sentry;
+#endif
 
 struct mm_heap {
 	uint32_t blocks;
@@ -143,6 +151,26 @@ struct mm {
 	spinlock_t lock;	/* all allocs and frees are atomic */
 };
 
+#if CONFIG_HOST
+struct mm memmap = {
+	.system = {
+		.info = {.free = SYSTEM_MEM,},
+	},
+
+	.module = {
+		.blocks = ARRAY_SIZE(mod_heap_map),
+		.map = mod_heap_map,
+		.info = {.free = HEAP_MOD_SIZE,},
+	},
+
+	.buffer = {
+		.blocks = ARRAY_SIZE(buf_heap_map),
+		.map = buf_heap_map,
+		.info = {.free = HEAP_BUF_SIZE,},
+	},
+	.total = {.free = SYSTEM_MEM + HEAP_MOD_SIZE + HEAP_BUF_SIZE,},
+};
+#else
 struct mm memmap = {
 	.system = {
 		.heap = &_system_heap,
@@ -167,6 +195,7 @@ struct mm memmap = {
 	},
 	.total = {.free = SYSTEM_MEM + HEAP_MOD_SIZE + HEAP_BUF_SIZE,},
 };
+#endif
 
 /* total size of block */
 static inline uint32_t block_get_size(struct block_map *map)
@@ -208,6 +237,7 @@ static void *rmalloc_dev(size_t bytes)
 	memmap.system.heap += bytes;
 	if (memmap.system.heap >= memmap.system.heap_end) {
 		trace_mem_error("eMd");
+printf("%p %p\n", memmap.system.heap, memmap.system.heap_end);
 		panic(PANIC_MEM);
 	}
 
@@ -628,6 +658,14 @@ void init_heap(void)
 	int i;
 
 	spinlock_init(&memmap.lock);
+
+#if defined CONFIG_HOST
+	memmap.system.heap = _system_heap;
+	memmap.system.heap_end = _module_heap;
+	memmap.module.heap = _module_heap;
+	memmap.module.heap_end = _buffer_heap;
+	memmap.buffer.heap = _buffer_heap;
+#endif
 
 	/* initialise buffer map */
 	current_map = &buf_heap_map[0];

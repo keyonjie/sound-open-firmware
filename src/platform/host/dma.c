@@ -29,7 +29,7 @@
  */
 
 #include <reef/dma.h>
-#include <reef/dw-dma.h>
+#include <reef/host-vdma.h>
 #include <platform/memory.h>
 #include <platform/interrupt.h>
 #include <platform/dma.h>
@@ -41,13 +41,13 @@ static struct dma dma[] = {
 	.plat_data = {
 		.id		= DMA_ID_DMAC0,
 	},
-//	.ops		= &dw_dma_ops,
+	.ops		= &host_vdma_ops,
 },
 {
 	.plat_data = {
 		.id		= DMA_ID_DMAC1,
 	},
-//	.ops		= &dw_dma_ops,
+	.ops		= &host_vdma_ops,
 },};
 
 struct dma *dma_get(int dmac_id)

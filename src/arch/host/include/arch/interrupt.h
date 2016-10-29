@@ -35,63 +35,149 @@
 #include <reef/interrupt-map.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include <unistd.h>
+#include <pthread.h>
+
+#define NUM_IRQ	32
+
+struct irq_handler {
+	void *data;
+	void (*cb)(void *arg);
+};
+
+struct irq_context {
+	int fd[2];		/* pipe fd used to wake WFI */
+
+	/* interrupt state */
+	uint32_t mask;
+	uint32_t status;
+
+	uint32_t global_disable;
+	pthread_mutex_t mutex;
+
+	struct irq_handler handler[NUM_IRQ];
+};
+
+static struct irq_context ic;
+
+static inline void status_clear(uint32_t irq)
+{
+	ic.status &= ~(0x1 << irq);
+}
+
+static inline void status_set(uint32_t irq)
+{
+	ic.status |= (0x1 << irq);
+}
+
+static inline void mask_clear(uint32_t irq)
+{
+	ic.mask &= ~(0x1 << irq);
+}
+
+static inline void mask_set(uint32_t irq)
+{
+	ic.mask |= (0x1 << irq);
+}
+
+static inline int is_active(uint32_t irq)
+{
+	uint32_t bit = 0x1 << irq;
+
+	if ((ic.status & bit) && !(ic.mask & bit))
+		return 1;
+	return 0;
+}
 
 static inline int arch_interrupt_register(int irq,
 	void(*handler)(void *arg), void *arg)
 {
 	irq = REEF_IRQ_NUMBER(irq);
-//	xthal_set_intclear(0x1 << irq);
-//	_xtos_set_interrupt_handler_arg(irq, handler, arg);
+
+	status_clear(irq);
+	ic.handler[irq].cb = handler;
+	ic.handler[irq].data = arg;
 	return 0;
 }
 
 static inline void arch_interrupt_unregister(int irq)
 {
 	irq = REEF_IRQ_NUMBER(irq);
-//	_xtos_set_interrupt_handler_arg(irq, NULL, NULL);
+	ic.handler[irq].cb = NULL;
+	ic.handler[irq].data = NULL;
 }
 
 /* returns previous mask */
-#define arch_interrupt_enable_mask(mask)
+static inline uint32_t arch_interrupt_enable_mask(uint32_t mask)
+{
+	uint32_t old_mask = ic.mask;
+
+	ic.mask |= mask;
+	return old_mask;
+}
 
 /* returns previous mask */
-#define arch_interrupt_disable_mask(mask)
+static inline uint32_t arch_interrupt_disable_mask(uint32_t mask)
+{
+	uint32_t old_mask = ic.mask;
 
+	ic.mask &= ~mask;
+	return old_mask;
+}
+
+/* runs in same thread context as caller */
 static inline void arch_interrupt_set(int irq)
 {
 	irq = REEF_IRQ_NUMBER(irq);
-	//xthal_set_intset(0x1 << irq);
+
+	status_set(irq);
+
+	pthread_mutex_lock(&ic.mutex);
+
+	/* return if masked */
+	if (!is_active(irq) || ic.global_disable)
+		goto out;
+
+	/* run handler */
+	if (ic.handler[irq].cb)
+		ic.handler[irq].cb(ic.handler[irq].data);
+
+	/* write IRQ to pipe to wake WFI */
+	write(ic.fd[0], &irq, sizeof(irq));
+
+out:
+	pthread_mutex_unlock(&ic.mutex);
 }
 
 static inline void arch_interrupt_clear(int irq)
 {
 	irq = REEF_IRQ_NUMBER(irq);
-	//xthal_set_intclear(0x1 << irq);
+	status_clear(irq);
 }
 
 static inline uint32_t arch_interrupt_get_enabled(void)
 {
-	return 0;//xthal_get_intenable();
+	return ~ic.mask;
 }
 
 static inline uint32_t arch_interrupt_get_status(void)
 {
-	return 0;//xthal_get_interrupt();
+	return ic.status;
 }
 
 static inline uint32_t arch_interrupt_global_disable(void)
 {
 	uint32_t flags = 0;
 
-//	asm volatile("rsil	%0, 5"
-//		     : "=a" (flags) :: "memory");
+	ic.global_disable = 1;
 	return flags;
 }
 
 static inline void arch_interrupt_global_enable(uint32_t flags)
 {
-//	asm volatile("wsr %0, ps; rsync"
-//		     :: "a" (flags) : "memory");
+	ic.global_disable = 0;
 }
+
+int arch_interrupt_init(void);
 
 #endif

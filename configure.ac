@@ -18,7 +18,7 @@ AC_DEFINE_UNQUOTED([REEF_MINOR], reef_minor, [Reef minor version])
 AC_CANONICAL_HOST
 
 # General compiler flags
-CFLAGS="${CFLAGS:+$CFLAGS } -O2 -g -Wall -Werror -Wl,-EL -fno-inline-functions -nostdlib"
+CFLAGS="${CFLAGS:+$CFLAGS }-g -Wall -Werror -Wl,-EL -fno-inline-functions -nostdlib"
 
 # Cross compiler tool libgcc and headers
 AC_ARG_WITH([root-dir],
@@ -46,7 +46,7 @@ case "$with_arch" in
 	AC_SUBST(XTENSA_LDFLAGS)
 
 	# extra CFLAGS defined here otherwise configure working gcc tests fails.
-	CFLAGS="${CFLAGS:+$CFLAGS }-mlongcalls"
+	CFLAGS="${CFLAGS:+$CFLAGS }-O2 -mlongcalls"
 	LDFLAGS="${LDFLAGS:+$LDFLAGS }-nostdlib"
 
 	#ARCH_ASFLAGS=""
@@ -59,18 +59,12 @@ case "$with_arch" in
 	AM_CONDITIONAL(BUILD_XTENSA, false)
 	AM_CONDITIONAL(BUILD_HOST, true)
 
-#	ARCH_CFLAGS="-mtext-section-literals"
-#	AC_SUBST(ARCH_CFLAGS)
-
-#	ARCH_LDFLAGS="-nostdlib -Wl,--no-check-sections -u call_user_start -Wl,-static"
-#	AC_SUBST(XTENSA_LDFLAGS)
+	ARCH_CFLAGS="-g"
+	AC_SUBST(ARCH_CFLAGS)
 
 	# extra CFLAGS defined here otherwise configure working gcc tests fails.
 #	CFLAGS="${CFLAGS:+$CFLAGS }-mlongcalls"
-#	LDFLAGS="${LDFLAGS:+$LDFLAGS }-nostdlib"
-
-	#ARCH_ASFLAGS=""
-#	AC_SUBST(ARCH_ASFLAGS)
+	LDFLAGS="${LDFLAGS:+$LDFLAGS }-lpthread"
 
 	ARCH="host"
 	AC_SUBST(ARCH)
@@ -139,17 +133,11 @@ case "$with_platform" in
 	AM_CONDITIONAL(BUILD_BROXTON, false)
 	AM_CONDITIONAL(BUILD_HOST, true)
 
-#	PLATFORM_LDSCRIPT="baytrail.x"
-#	AC_SUBST(PLATFORM_LDSCRIPT)
-
 	PLATFORM="host"
 	AC_SUBST(PLATFORM)
 
 	FW_NAME="host"
 	AC_SUBST(FW_NAME)
-
-#	XTENSA_CORE="hifi2_std"
-#	AC_SUBST(XTENSA_CORE)
 
 	AC_DEFINE([CONFIG_HOST], [1], [Configure for Host test harness])
     ;;

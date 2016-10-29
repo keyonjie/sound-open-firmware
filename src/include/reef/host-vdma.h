@@ -28,74 +28,22 @@
  * Author: Liam Girdwood <liam.r.girdwood@linux.intel.com>
  */
 
-#include <reef/init.h>
+#ifndef __REEF_HOST_VDMA_H__
+#define __REEF_HOST_VDMA_H__
+
 #include <reef/dma.h>
-#include <reef/ipc.h>
-#include <stdint.h>
-#include <stdlib.h>
-#include <pthread.h>
-#include <unistd.h>
-#include <reef/audio/component.h>
 
-void *_buffer_heap;
-void *_system_heap;
-void *_module_heap;
-void *_stack_sentry;
+struct vdma_lli;
 
-int ipc_process_msg_queue(void)
-{
-	return 0;
-}
+/* Virtual DMA descriptor */
+struct vdma_lli {
+	void *sar;
+	void *dar;
+	uint32_t direction;
+	uint32_t size;
+	struct vdma_lli *llp;
+};
 
-int ipc_stream_send_notification(struct comp_dev *cdev,
-	struct comp_position *cp)
-{
-	return 0;
-}
+extern const struct dma_ops host_vdma_ops;
 
-int platform_ipc_init(struct ipc *ipc)
-{
-	return 0;
-}
-
-int dma_copy_to_host(struct dma_sg_config *host_sg, int32_t host_offset,
-	void *local_ptr, int32_t size)
-{
-	return 0;
-}
-
-int dma_copy_from_host(struct dma_sg_config *host_sg, int32_t host_offset,
-	void *local_ptr, int32_t size)
-{
-	return 0;
-}
-
-void arch_wait_for_interrupt(uint32_t irq)
-{
-	uint32_t irqp;
-
-	/* block on reading pipe */
-	read(ic.fd[0], &irqp, sizeof(irqp));
-}
-
-int arch_interrupt_init(void)
-{
-	int ret;
-
-	pthread_mutex_init(&ic.mutex, NULL);
-	ret = pipe(ic.fd);
-
-	return ret;
-}
-
-/* do any architecture init here */
-int arch_init(void)
-{
-	_system_heap = calloc(1024, 256);
-	_module_heap = _system_heap + 1024 * 32;
-	_buffer_heap = _module_heap + 1024 * 32;
-	_stack_sentry = _buffer_heap + 1024 * 198;
-
-	return 0;
-}
-
+#endif

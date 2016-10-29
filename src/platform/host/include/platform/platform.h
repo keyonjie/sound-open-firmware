@@ -35,6 +35,7 @@
 #include <platform/shim.h>
 #include <platform/interrupt.h>
 #include <stdio.h>
+#include <stdlib.h>
 
 /* default static pipeline SSP port - not used for dynamic pipes */
 #define PLATFORM_SSP_PORT	2
@@ -74,11 +75,12 @@
 
 /* Platform defined panic code */
 #define platform_panic(__x) \
-	fprintf(stdout, "panic 0x%x\n", __x);
+	fprintf(stdout, "panic 0x%x\n", __x); \
+	exit(0);
 
 /* Platform defined trace code */
 #define platform_trace_point(__x) \
-	fprintf(stdout, "trace 0x%x\n", __x);
+	fprintf(stdout, "trace boot 0x%x\n", __x);
 /*
  * APIs declared here are defined for every platform and IPC mechanism.
  */
