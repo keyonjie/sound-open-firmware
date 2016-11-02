@@ -48,6 +48,7 @@
 #include <config.h>
 #include <string.h>
 
+#if 0
 static const struct sst_intel_ipc_fw_ready ready = {
 	/* for host, we need exchange the naming of inxxx and outxxx */
 	.inbox_offset = MAILBOX_HOST_OFFSET + MAILBOX_OUTBOX_OFFSET,
@@ -63,6 +64,7 @@ static const struct sst_intel_ipc_fw_ready ready = {
 		},
 	},
 };
+#endif
 
 static struct work_queue_timesource platform_generic_queue = {
 	.timer	 = {

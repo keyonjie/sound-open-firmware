@@ -41,22 +41,7 @@ void *_buffer_heap;
 void *_system_heap;
 void *_module_heap;
 void *_stack_sentry;
-
-int ipc_process_msg_queue(void)
-{
-	return 0;
-}
-
-int ipc_stream_send_notification(struct comp_dev *cdev,
-	struct comp_position *cp)
-{
-	return 0;
-}
-
-int platform_ipc_init(struct ipc *ipc)
-{
-	return 0;
-}
+void *_mailbox;
 
 int dma_copy_to_host(struct dma_sg_config *host_sg, int32_t host_offset,
 	void *local_ptr, int32_t size)
@@ -95,7 +80,7 @@ int arch_init(void)
 	_module_heap = _system_heap + 1024 * 32;
 	_buffer_heap = _module_heap + 1024 * 32;
 	_stack_sentry = _buffer_heap + 1024 * 198;
-
+	_mailbox = _stack_sentry - 0x1000;
 	return 0;
 }
 

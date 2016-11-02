@@ -153,12 +153,16 @@ static void host_vdma_channel_put(struct dma *dma, int channel)
 	spin_unlock_irq(&dma->lock, flags);
 }
 
-static void *copier_thread(void *data)
+static void *copier_from_host_thread(void *data)
 {
 	struct dma_chan_data *chan = data;
+	char shm_name[64];
 	//struct vdma_lli *lli_desc = chan->lli;
 	//int ret = 0;
 	void *buf;
+
+	/* open SHM to host */
+	sprintf(shm_name, "dmac-%d-%d", chan->dma->plat_data.id, chan->channel);
 
 	buf = calloc(1, 1024 * 16);
 	if (buf == NULL) {
@@ -198,6 +202,7 @@ static int host_vdma_start(struct dma *dma, int channel)
 	case DMA_DIR_LMEM_TO_HMEM:
 		// HOST device WAV or PCM defined by HOST address
 		//if (p->chan[channel].dest_dev == )
+		copier = copier_from_host_thread;
 		break;
 	case DMA_DIR_HMEM_TO_LMEM:
 		break;

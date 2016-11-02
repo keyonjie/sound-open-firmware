@@ -40,6 +40,8 @@
 #define DRAM0_SIZE	0x00028000
 #define DRAM0_VBASE	0xC0000000
 
+#define MAILBOX_BASE (DRAM0_BASE + DRAM0_SIZE - 0x2000)
+
 
 /* HEAP Constants - WARNING this MUST be aligned with the linker script */
 /* TODO:preproces linker script with this header to align automatically. */

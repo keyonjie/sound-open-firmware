@@ -20,7 +20,9 @@ endif
 
 if BUILD_HOST
 libipc_a_SOURCES = \
-	ipc.c
+	ipc.c \
+	intel-ipc.c \
+	host-ipc.c
 endif
 
 libipc_a_CFLAGS = \

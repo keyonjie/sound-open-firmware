@@ -63,7 +63,7 @@
 
 /* convert DSP mailbox address to host offset */
 #define to_host_offset(_s) \
-	(((uint32_t)&_s) - MAILBOX_BASE + MAILBOX_HOST_OFFSET)
+	(((void *)&_s) - MAILBOX_BASE + MAILBOX_HOST_OFFSET)
 
 struct ipc *_ipc;
 
@@ -180,8 +180,9 @@ static int get_page_descriptors(struct intel_ipc_data *iipc,
 	list_init(&config.elem_list);
 
 	/* set up DMA desciptor */
-	elem.dest = (uint32_t)iipc->page_table;
-	elem.src = ring->ring_pt_address;
+	elem.dest = (void*)iipc->page_table;
+	/* avoid gcc error for different sizes */
+	elem.src = NULL + ring->ring_pt_address;
 
 	/* source buffer size is always PAGE_SIZE bytes */
 	/* 20 bits for each page, round up to 32 */

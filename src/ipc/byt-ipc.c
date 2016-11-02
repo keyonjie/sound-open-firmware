@@ -66,7 +66,7 @@ static void do_notify(void)
 	if (msg == NULL)
 		goto out;
 
-	/* copy the data returned from DSP */
+	/* copy the data returned from DSP - TODO: this is copying data to address 0  */
 	if (msg->rx_size && msg->rx_size < MSG_MAX_SIZE)
 		mailbox_inbox_read(0, msg->rx_data, msg->rx_size);
 
