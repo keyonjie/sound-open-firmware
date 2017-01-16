@@ -63,7 +63,7 @@
 
 /* convert DSP mailbox address to host offset */
 #define to_host_offset(_s) \
-	(((void *)&_s) - MAILBOX_BASE + MAILBOX_HOST_OFFSET)
+	(uint32_t)((((long)&_s) - MAILBOX_BASE + MAILBOX_HOST_OFFSET) & 0xffffffff)
 
 struct ipc *_ipc;
 
@@ -241,10 +241,11 @@ static int parse_page_descriptors(struct intel_ipc_data *iipc,
 			phy_addr <<= 12;
 		phy_addr &= 0xfffff000;
 
+		/* use NULL here to avoid compiler warning casting different sizes */
 		if (direction == STREAM_DIRECTION_PLAYBACK)
-			elem.src = phy_addr;
+			elem.src = NULL + phy_addr;
 		else
-			elem.dest = phy_addr;
+			elem.dest = NULL + phy_addr;
 
 		err = pipeline_host_buffer(pipeline_static, host, &elem,
 				req->ringinfo.ring_size);

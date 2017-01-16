@@ -8,9 +8,21 @@ export REEF_INCDIR = \
 	-I $(SRC_DIR)/include \
 	-I $(ROOT_DIR)/include
 
-export ARCH_INCDIR = \
-	-I $(SRC_DIR)/arch/$(ARCH)/include \
+ARCH_INCDIR = \
+	-I $(SRC_DIR)/arch/$(ARCH)/include
+
+if BUILD_HOST
+	ARCH_INCDIR += \
+	-I $(SRC_DIR)/platform
+endif
+
+if BUILD_BAYTRAIL
+	ARCH_INCDIR += \
 	-I $(SRC_DIR)/arch/$(ARCH)/xtos
+	
+endif
+
+export ARCH_INCDIR
 
 export PLATFORM_INCDIR = \
 	-I $(SRC_DIR)/platform/$(PLATFORM)/include

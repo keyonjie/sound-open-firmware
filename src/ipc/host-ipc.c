@@ -48,9 +48,6 @@
 #include <reef/intel-ipc.h>
 #include <reef/host-ipc.h>
 
-/* set to 1 to enable debug */
-static int io_bridge_debug = 1;//QEMU_IO_DEBUG;
-
 /* we can either be parent or child */
 #define ROLE_NONE    0
 #define ROLE_PARENT    1
@@ -98,8 +95,8 @@ static void * parent_reader_thread(void *data)
     int i;
 
     mq_getattr(io->parent.mqdes, &io->parent.mqattr);
-    if (io_bridge_debug)
-        fprintf(stdout, "bridge-io: %d messages are currently on parent queue.\n",
+
+    fprintf(stdout, "bridge-io: %d messages are currently on parent queue.\n",
             (int)io->parent.mqattr.mq_curmsgs);
 
     /* flush old messages here */
@@ -107,16 +104,14 @@ static void * parent_reader_thread(void *data)
         mq_receive(io->parent.mqdes, buf, QEMU_IO_MAX_MSG_SIZE, NULL);
         struct host_ipc_msg *hdr = (struct host_ipc_msg*)buf;
 
-        if (io_bridge_debug)
-            fprintf(stdout, "bridge-io: flushed %d type %d size %d msg %d\n",
+        fprintf(stdout, "bridge-io: flushed %d type %d size %d msg %d\n",
                 hdr->id, hdr->type, hdr->size, hdr->msg);
     }
 
     while (mq_receive(io->parent.mqdes, buf, QEMU_IO_MAX_MSG_SIZE, NULL) != -1) {
         struct host_ipc_msg *hdr = (struct host_ipc_msg*)buf;
 
-        if (io_bridge_debug)
-            fprintf(stdout, "bridge-io: msg recv %d type %d size %d msg %d\n",
+        fprintf(stdout, "bridge-io: msg recv %d type %d size %d msg %d\n",
                 hdr->id, hdr->type, hdr->size, hdr->msg);
 
         if (io->cb)
@@ -134,8 +129,8 @@ static void * child_reader_thread(void *data)
     int i;
 
     mq_getattr(io->child.mqdes, &io->child.mqattr);
-    if (io_bridge_debug)
-        fprintf(stdout, "bridge-io: %d messages are currently on child queue.\n",
+
+    fprintf(stdout, "bridge-io: %d messages are currently on child queue.\n",
             (int)io->child.mqattr.mq_curmsgs);
 
     /* flush old messages here */
@@ -143,16 +138,14 @@ static void * child_reader_thread(void *data)
         mq_receive(io->child.mqdes, buf, QEMU_IO_MAX_MSG_SIZE, NULL);
         struct host_ipc_msg *hdr = (struct host_ipc_msg*)buf;
 
-        if (io_bridge_debug)
-            fprintf(stdout, "bridge-io: flushed %d type %d size %d msg %d\n",
+        fprintf(stdout, "bridge-io: flushed %d type %d size %d msg %d\n",
                 hdr->id, hdr->type, hdr->size, hdr->msg);
     }
 
     while (mq_receive(io->child.mqdes, buf, QEMU_IO_MAX_MSG_SIZE, NULL) != -1) {
         struct host_ipc_msg *hdr = (struct host_ipc_msg*)buf;
 
-        if (io_bridge_debug)
-            fprintf(stdout, "bridge-io: msg recv %d type %d size %d msg %d\n",
+        fprintf(stdout, "bridge-io: msg recv %d type %d size %d msg %d\n",
                 hdr->id, hdr->type, hdr->size, hdr->msg);
 
         if (io->cb)
@@ -234,7 +227,7 @@ static int mq_init(const char *name, struct io_bridge *io)
 
     }
 
-    if (ret == 0 && io_bridge_debug) {
+    if (ret == 0) {
         fprintf(stdout, "bridge-io-mq: added %s\n", io->parent.mq_name);
         fprintf(stdout, "bridge-io-mq: added %s\n", io->child.mq_name);
     }
@@ -311,8 +304,7 @@ int host_ipc_register_shm(const char *rname, int region, size_t size, void **add
         return -errno;
     }
 
-    if (io_bridge_debug)
-        fprintf(stdout, "bridge-io: %s fd %d region %d at %p allocated %zu bytes\n",
+    fprintf(stdout, "bridge-io: %s fd %d region %d at %p allocated %zu bytes\n",
             name, fd, region, a, size);
     _iob.shm[region].fd = fd;
     _iob.shm[region].addr = a;
@@ -350,8 +342,7 @@ int host_ipc_send_msg(struct host_ipc_msg *msg)
     else
         ret = mq_send(_iob.parent.mqdes, (const char*)msg, msg->size, 0);
 
-    if (io_bridge_debug)
-        fprintf(stdout, "bridge-io: msg send: %d type %d msg %d size %d ret %d\n",
+    fprintf(stdout, "bridge-io: msg send: %d type %d msg %d size %d ret %d\n",
             msg->id, msg->type, msg->msg, msg->size, ret);
     if (ret < 0)
         fprintf(stderr, "bridge-io: msg send failed %d\n", -errno);
@@ -368,8 +359,7 @@ int host_ipc_send_msg_reply(struct host_ipc_msg *msg)
     else
         ret = mq_send(_iob.parent.mqdes, (const char*)msg, msg->size, 0);
 
-    if (io_bridge_debug)
-        fprintf(stdout, "bridge-io: repmsg send: %d type %d msg %d size %d ret %d\n",
+    fprintf(stdout, "bridge-io: repmsg send: %d type %d msg %d size %d ret %d\n",
             msg->id, msg->type, msg->msg, msg->size, ret);
     if (ret < 0)
         fprintf(stderr, "bridge-io: rmsg send failed %d\n", -errno);
@@ -538,16 +528,6 @@ out:
     spin_unlock_irq(&ipc->lock, flags);
 }
 
-int ipc_process_msg_queue(void)
-{
-    return 0;
-}
-
-int ipc_stream_send_notification(struct comp_dev *cdev,
-    struct comp_position *cp)
-{
-    return 0;
-}
 
 extern void *_mailbox;
 extern struct ipc *_ipc;

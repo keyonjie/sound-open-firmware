@@ -32,13 +32,20 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <platform/platform.h>
 
-int gmain(int argc, char *argv[]);
+int rmain(int argc, char *argv[]);
 
 int main (int argc, char *argv[])
 {
-	/* parse options */
+	/* TODO: parse options */
 
-	gmain(argc, argv);
+	/* init platform memory */
+	platform_mem_init(argc, argv);
+
+	/* init platform MMIO */
+	platform_mmio_init(argc, argv);
+
+	rmain(argc, argv);
 	return 0;
 }

@@ -105,6 +105,12 @@ void platform_interrupt_unmask(uint32_t irq, uint32_t mask)
 
 }
 
+int platform_ssp_set_mn(uint32_t ssp_port, uint32_t source, uint32_t rate,
+	uint32_t bclk_fs)
+{
+	return 0;
+}
+
 static struct timer platform_ext_timer = {
 	.id = TIMER3,
 	.irq = IRQ_NUM_EXT_TIMER,

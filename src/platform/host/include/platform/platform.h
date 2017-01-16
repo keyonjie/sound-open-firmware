@@ -94,4 +94,9 @@ int platform_ssp_set_mn(uint32_t ssp_port, uint32_t source, uint32_t rate,
 
 void platform_ssp_disable_mn(uint32_t ssp_port);
 
+int platform_mem_init(int argc, char *argv[]);
+
+	/* allocate platform MMIO */
+int platform_mmio_init(int argc, char *argv[]);
+
 #endif

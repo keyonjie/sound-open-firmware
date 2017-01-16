@@ -27,55 +27,74 @@
  *
  * Author: Liam Girdwood <liam.r.girdwood@linux.intel.com>
  *
- * Generic DSP initialisation. This calls architecture and platform specific
- * initialisation functions.
+ * Host test harness
  */
 
-#include <stddef.h>
-#include <reef/init.h>
-#include <reef/task.h>
-#include <reef/debug.h>
-#include <reef/alloc.h>
-#include <reef/notifier.h>
-#include <reef/work.h>
-#include <reef/trace.h>
-#include <platform/platform.h>
-#include <config.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <errno.h>
+#include <baytrail/include/platform/memory.h>
+#include <baytrail/include/platform/platform.h>
+#include <reef/host-ipc.h>
 
-#if defined CONFIG_HOST
-int rmain(int argc, char *argv[])
-#else
-int main(int argc, char *argv[])
-#endif
+void *_buffer_heap;
+void *_system_heap;
+void *_module_heap;
+void *_stack_sentry;
+void *_mailbox;
+
+static uint32_t *shim;
+
+int platform_mem_init(int argc, char *argv[])
 {
-	int err;
+	// TODO: have option to alloc memory during runtime for valgrind.
 
-	trace_point(TRACE_BOOT_START);
+	/* allocate our system memory - TODO can we pull sizes from platform */
+	_system_heap = calloc(DRAM0_SIZE, 1);
+	if (_system_heap == NULL) {
+		fprintf(stderr, "error: cant alloc 0x%x bytes for heap\n", DRAM0_SIZE);
+		return -ENOMEM;
+	}
+	_module_heap = _system_heap + SYSTEM_MEM;
+	_buffer_heap = _module_heap + HEAP_MOD_SIZE;
+	_stack_sentry = _buffer_heap + HEAP_BUF_SIZE;
 
-	/* init architecture */
-	err = arch_init();
-	if (err < 0)
-		panic(PANIC_ARCH);
+	_mailbox = calloc(MAILBOX_SIZE, 1);
+	if (_mailbox == NULL) {
+		fprintf(stderr, "error: cant alloc 0x%x bytes for mailbox\n",
+			MAILBOX_SIZE);
+		return -ENOMEM;
+	}
 
-	trace_point(TRACE_BOOT_ARCH);
+	shim = calloc(SHIM_SIZE, 1);
+	if (_mailbox == NULL) {
+		fprintf(stderr, "error: cant alloc 0x%x bytes for shim\n",
+				SHIM_SIZE);
+		return -ENOMEM;
+	}
+	return 0;
+}
 
-	/* initialise system services */
-	init_heap();
-	init_system_notify();
+	/* allocate platform MMIO */
+int platform_mmio_init(int argc, char *argv[])
+{
+	int ret;
 
-	trace_point(TRACE_BOOT_SYS);
+	ret = host_ipc_register_shm("mailbox", 0, MAILBOX_SIZE, &_mailbox);
+	if (ret < 0)
+	    return ret;
 
-	/* init the platform */
-	err = platform_init();
-	if (err < 0)
-		panic(PANIC_PLATFORM);
+	ret = host_ipc_register_shm("shim", 0, SHIM_SIZE, &_mailbox);
+	if (ret < 0)
+	    return ret;
 
-	trace_point(TRACE_BOOT_PLATFORM);
+	ret = host_ipc_register_shm("pci", 0, MAILBOX_SIZE, &_mailbox);
+	if (ret < 0)
+	    return ret;
 
-	/* should not return */
-	err = do_task();
+	ret = host_ipc_register_shm("dram", 0, DRAM0_SIZE, &_system_heap);
+	if (ret < 0)
+	    return ret;
 
-	/* should never get here */
-	panic(PANIC_TASK);
-	return err;
+	return 0;
 }
