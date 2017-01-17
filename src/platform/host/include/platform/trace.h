@@ -28,8 +28,8 @@
  * Author: Liam Girdwood <liam.r.girdwood@linux.intel.com>
  */
 
-#ifndef __INCLUDE_PLATFORM_TRACE__
-#define __INCLUDE_PLATFORM_TRACE__
+#ifndef __INCLUDE_PLATFORM_HOST_TRACE__
+#define __INCLUDE_PLATFORM_HOST_TRACE__
 
 #include <reef/timer.h>
 #include <stdint.h>

@@ -28,9 +28,16 @@
  * Author: Liam Girdwood <liam.r.girdwood@linux.intel.com>
  */
 
-#ifndef __PLATFORM_MEMORY_H__
-#define __PLATFORM_MEMORY_H__
+#ifndef __PLATFORM_HOST_MEMORY_H__
+#define __PLATFORM_HOST_MEMORY_H__
 
+#include <config.h>
+
+#if CONFIG_HT_BAYTRAIL
+#include <baytrail/include/platform/memory.h>
+#endif
+
+#if 0
 /* physical DSP addresses */
 
 #define IRAM_BASE	0xFF2C0000
@@ -72,4 +79,5 @@
 #define SYSTEM_MEM \
 	(DRAM0_SIZE - HEAP_MOD_SIZE - HEAP_BUF_SIZE)
 
+#endif
 #endif

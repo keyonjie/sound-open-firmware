@@ -28,8 +28,8 @@
  * Author: Liam Girdwood <liam.r.girdwood@linux.intel.com>
  */
 
-#ifndef __PLATFORM_CLOCK__
-#define __PLATFORM_CLOCK__
+#ifndef __PLATFORM_HOST_CLOCK__
+#define __PLATFORM_HOST_CLOCK__
 
 #define CLK_CPU		0
 #define CLK_SSP		1

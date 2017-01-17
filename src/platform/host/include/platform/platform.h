@@ -29,8 +29,8 @@
  *         Keyon Jie <yang.jie@linux.intel.com>
  */
 
-#ifndef __PLATFORM_PLATFORM_H__
-#define __PLATFORM_PLATFORM_H__
+#ifndef __PLATFORM_HOST_PLATFORM_H__
+#define __PLATFORM_HOST_PLATFORM_H__
 
 #include <platform/shim.h>
 #include <platform/interrupt.h>
@@ -39,6 +39,9 @@
 
 /* default static pipeline SSP port - not used for dynamic pipes */
 #define PLATFORM_SSP_PORT	2
+
+/* default SSP stream format - need aligned with codec setting*/
+#define PLATFORM_SSP_STREAM_FORMAT	STREAM_FORMAT_S24_4LE
 
 /* IPC Interrupt */
 #define PLATFORM_IPC_INTERUPT	IRQ_NUM_EXT_IA
@@ -56,13 +59,25 @@
 #define PLATFORM_MAX_CHANNELS	4
 #define PLATFORM_MAX_STREAMS	5
 
+/* TODO: get this from IPC - 2 * 32 bit*/
+#define PLATFORM_INT_FRAME_SIZE		8
+/* TODO: get this from IPC - 2 * 16 bit*/
+#define PLATFORM_HOST_FRAME_SIZE	4
+/* TODO: get this from IPC - 2 * 24 (32) bit*/
+#define PLATFORM_DAI_FRAME_SIZE		8
+
 /* Platform Host DMA buffer config - these should align with DMA engine */
-#define PLAT_HOST_PERSIZE	256	/* must be multiple of DMA burst size */
+#define PLAT_HOST_PERIOD_FRAMES	48	/* must be multiple of DMA burst size */
 #define PLAT_HOST_PERIODS	2	/* give enough latency for DMA refill */
 
 /* Platform Dev DMA buffer config - these should align with DMA engine */
-#define PLAT_DEV_PERSIZE	256	/* must be multiple of DMA+DEV burst size */
-#define PLAT_DEV_PERIODS	2	/* give enough latency for DMA refill */
+#define PLAT_DAI_PERIOD_FRAMES	48	/* must be multiple of DMA+DEV burst size */
+#define PLAT_DAI_PERIODS	2	/* give enough latency for DMA refill */
+
+/* Platform internal buffer config - these should align with DMA engine */
+#define PLAT_INT_PERIOD_FRAMES	48	/* must be multiple of DMA+DEV burst size */
+#define PLAT_INT_PERIODS	2	/* give enough latency for DMA refill */
+
 
 /* DMA channel drain timeout in microseconds */
 #define PLATFORM_DMA_TIMEOUT	1333

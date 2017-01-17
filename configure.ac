@@ -146,6 +146,39 @@ case "$with_platform" in
     ;;
 esac
 
+# Platform support
+AC_ARG_WITH([hosttarget],
+        AS_HELP_STRING([--with-hosttarget], [Specify Host Target Platform]),
+	[], [with_hosttarget=no])
+
+case "$with_hosttarget" in
+    baytrail*)
+	AM_CONDITIONAL(BUILD_HT_BAYTRAIL, true)
+	AM_CONDITIONAL(BUILD_HT_CHERRYTRAIL, false)
+	AM_CONDITIONAL(BUILD_HT_HASWELL, false)
+	AM_CONDITIONAL(BUILD_HT_BROADWELL, false)
+	AM_CONDITIONAL(BUILD_HT_BROXTON, false)
+	
+	AC_DEFINE([CONFIG_HT_BAYTRAIL], [1], [Configure for Host Target Baytrail])
+    ;;
+    cherrytrail*)
+	AM_CONDITIONAL(BUILD_HT_BAYTRAIL, false)
+	AM_CONDITIONAL(BUILD_HT_CHERRYTRAIL, true)
+	AM_CONDITIONAL(BUILD_HT_HASWELL, false)
+	AM_CONDITIONAL(BUILD_HT_BROADWELL, false)
+	AM_CONDITIONAL(BUILD_HT_BROXTON, false)
+
+	AC_DEFINE([CONFIG_HT_CHERRYTRAIL], [1], [Configure for Host Target Cherrytrail])
+    ;;
+    *)
+        AM_CONDITIONAL(BUILD_HT_BAYTRAIL, false)
+	AM_CONDITIONAL(BUILD_HT_CHERRYTRAIL, false)
+	AM_CONDITIONAL(BUILD_HT_HASWELL, false)
+	AM_CONDITIONAL(BUILD_HT_BROADWELL, false)
+	AM_CONDITIONAL(BUILD_HT_BROXTON, false)
+    ;;
+esac
+
 # DSP core support (Optional)
 AC_ARG_WITH([dsp-core],
         AS_HELP_STRING([--with-dsp-core], [Specify DSP Core]),

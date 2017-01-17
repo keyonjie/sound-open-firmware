@@ -28,8 +28,8 @@
  * Author: Liam Girdwood <liam.r.girdwood@linux.intel.com>
  */
 
-#ifndef __PLATFORM_SHIM_H__
-#define __PLATFORM_SHIM_H__
+#ifndef __PLATFORM_HOST_SHIM_H__
+#define __PLATFORM_HOST_SHIM_H__
 
 #include <platform/memory.h>
 #include <stdint.h>

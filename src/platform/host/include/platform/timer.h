@@ -29,8 +29,8 @@
  */
 
 
-#ifndef __PLATFORM_TIMER_H__
-#define __PLATFORM_TIMER_H__
+#ifndef __PLATFORM_HOST_TIMER_H__
+#define __PLATFORM_HOST_TIMER_H__
 
 #include <stdint.h>
 #include <reef/timer.h>

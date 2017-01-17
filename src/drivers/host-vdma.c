@@ -70,7 +70,7 @@ struct dma_chan_data {
 	uint32_t dest_dev;
 	uint32_t src_dev;
 
-	void (*cb)(void *data, uint32_t type);	/* client callback function */
+	void (*cb)(void *data, uint32_t type, struct dma_sg_elem *next);	/* client callback function */
 	void *cb_data;		/* client callback data */
 	int cb_type;		/* callback type */
 };
@@ -376,7 +376,8 @@ static int host_vdma_set_config(struct dma *dma, int channel,
 }
 
 static void host_vdma_set_cb(struct dma *dma, int channel, int type,
-		void (*cb)(void *data, uint32_t type), void *data)
+	void (*cb)(void *data, uint32_t type, struct dma_sg_elem *next),
+	void *data)
 {
 	struct dma_pdata *p = dma_get_drvdata(dma);
 	uint32_t flags;

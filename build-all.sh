@@ -20,7 +20,7 @@ ls -l src/arch/xtensa/*.ri
 
 # build image for host architecture and platform
 # TODO: fix this for any host architecture. This should be detected by configure ?
-./configure --with-arch=host --with-platform=host --host=x86_64-unknown-linux-gnu --with-root-dir=.
+./configure --with-arch=host --with-platform=host --host=x86_64-unknown-linux-gnu --with-root-dir=. --with-hosttarget=baytrail
 #./configure --with-arch=host --with-platform=host --host=arm-eabi-linux-gnu --with-root-dir=.
 make
 

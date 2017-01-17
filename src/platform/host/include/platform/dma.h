@@ -28,8 +28,8 @@
  * Author: Liam Girdwood <liam.r.girdwood@linux.intel.com>
  */
 
-#ifndef __PLATFORM_DMA_H__
-#define __PLATFORM_DMA_H__
+#ifndef __PLATFORM_HOST_DMA_H__
+#define __PLATFORM_HOST_DMA_H__
 
 #include <stdint.h>
 

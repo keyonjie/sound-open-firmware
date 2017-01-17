@@ -29,8 +29,8 @@
  *         Keyon Jie <yang.jie@linux.intel.com>
  */
 
-#ifndef __INCLUDE_PLATFORM_DEBUG__
-#define __INCLUDE_PLATFORM_DEBUG__
+#ifndef __INCLUDE_PLATFORM_HOST_DEBUG__
+#define __INCLUDE_PLATFORM_HOST_DEBUG__
 
 #include <reef/mailbox.h>
 #include <platform/platform.h>

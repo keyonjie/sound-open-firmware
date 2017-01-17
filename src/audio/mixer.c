@@ -35,6 +35,7 @@
 #include <reef/list.h>
 #include <reef/stream.h>
 #include <reef/alloc.h>
+#include <platform/platform.h>
 #include <reef/audio/component.h>
 
 #define trace_mixer(__e)	trace_event(TRACE_CLASS_MIXER, __e)
