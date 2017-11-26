@@ -325,10 +325,10 @@ static int create_local_elems(struct comp_dev *dev)
 			goto unwind;
 
 		if (dev->params.direction == SOF_IPC_STREAM_PLAYBACK)
-			e->dest = (uint32_t)(hd->dma_buffer->addr) +
+			e->dest = (unsigned long)(hd->dma_buffer->addr) +
 				i * hd->period_bytes;
 		else
-			e->src = (uint32_t)(hd->dma_buffer->addr) +
+			e->src = (unsigned long)(hd->dma_buffer->addr) +
 				i * hd->period_bytes;
 
 		e->size = hd->period_bytes;
@@ -443,8 +443,8 @@ static int host_params(struct comp_dev *dev)
 
 	/* set up DMA configuration - copy in words for all formats as
 	   this is most optimal for memory <-> memory copies. */
-	config->src_width = sizeof(uint32_t);
-	config->dest_width = sizeof(uint32_t);
+	config->src_width = sizeof(unsigned long);
+	config->dest_width = sizeof(unsigned long);
 	config->cyclic = 0;
 
 	host_elements_reset(dev);

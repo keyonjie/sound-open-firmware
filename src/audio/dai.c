@@ -295,7 +295,7 @@ static int dai_playback_params(struct comp_dev *dev)
 				goto err_unwind;
 
 			elem->size = dd->period_bytes;
-			elem->src = (uint32_t)(dma_buffer->r_ptr) +
+			elem->src = (unsigned long)(dma_buffer->r_ptr) +
 				i * dd->period_bytes;
 
 			elem->dest = dai_fifo(dd->dai, SOF_IPC_STREAM_PLAYBACK);
@@ -362,7 +362,7 @@ static int dai_capture_params(struct comp_dev *dev)
 				goto err_unwind;
 
 			elem->size = dd->period_bytes;
-			elem->dest = (uint32_t)(dma_buffer->w_ptr) +
+			elem->dest = (unsigned long)(dma_buffer->w_ptr) +
 				i * dd->period_bytes;
 			elem->src = dai_fifo(dd->dai, SOF_IPC_STREAM_CAPTURE);
 			list_item_append(&elem->list, &config->elem_list);
