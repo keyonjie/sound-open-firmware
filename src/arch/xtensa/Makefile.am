@@ -1,3 +1,9 @@
+if BUILD_LIB
+
+SUBDIRS = include
+
+else
+
 SUBDIRS = hal xtos include
 
 bin_PROGRAMS = \
@@ -79,3 +85,5 @@ vminstall-local:
 
 clean-local:
 	rm -f reef-*.bin
+
+endif

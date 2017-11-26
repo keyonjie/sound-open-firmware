@@ -8,12 +8,27 @@ export REEF_INCDIR = \
 	-I $(SRC_DIR)/include \
 	-I $(ROOT_DIR)/include
 
+if BUILD_XTENSA
 export ARCH_INCDIR = \
 	-I $(SRC_DIR)/arch/$(ARCH)/include \
 	-I $(SRC_DIR)/arch/$(ARCH)/xtos
 
 export PLATFORM_INCDIR = \
 	-I $(SRC_DIR)/platform/$(PLATFORM)/include
+endif
+
+if BUILD_HOST
+export ARCH_INCDIR = \
+	-I $(SRC_DIR)/arch/$(ARCH)/include
+
+if BUILD_LIB
+export PLATFORM_INCDIR = \
+	-I $(SRC_DIR)/library/include
+else
+export PLATFORM_INCDIR = \
+	-I $(SRC_DIR)/platform/$(PLATFORM)/include
+endif
+endif
 
 BUILT_SOURCES = $(top_srcdir)/src/include/version.h
 

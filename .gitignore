@@ -17,6 +17,10 @@
 .build
 *.dis
 *.lst
+*.lo
+*.so*
+*.Plo
+*.la*
 
 Makefile
 Makefile.in
