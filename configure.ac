@@ -17,7 +17,7 @@ AC_DEFINE_UNQUOTED([REEF_MINOR], reef_minor, [Reef minor version])
 AC_CANONICAL_HOST
 
 # General compiler flags
-CFLAGS="${CFLAGS:+$CFLAGS } -O2 -g -Wall -Werror -Wl,-EL -fno-inline-functions -nostdlib -Wmissing-prototypes"
+CFLAGS="${CFLAGS:+$CFLAGS } -g -Wall -Werror -Wl,-EL -fno-inline-functions -nostdlib -Wmissing-prototypes"
 
 # Cross compiler tool libgcc and headers
 AC_ARG_WITH([root-dir],
@@ -46,7 +46,7 @@ case "$with_arch" in
 	AC_SUBST(XTENSA_LDFLAGS)
 
 	# extra CFLAGS defined here otherwise configure working gcc tests fails.
-	CFLAGS="${CFLAGS:+$CFLAGS }-mlongcalls"
+	CFLAGS="${CFLAGS:+$CFLAGS }-mlongcalls -O2"
 	LDFLAGS="${LDFLAGS:+$LDFLAGS }-nostdlib"
 
 	#ARCH_ASFLAGS=""
@@ -67,7 +67,7 @@ case "$with_arch" in
 	AC_SUBST(ARCH_CFLAGS)
 
 	# extra CFLAGS defined here otherwise configure working gcc tests fails.
-	CFLAGS="${CFLAGS:+$CFLAGS }"
+	CFLAGS="${CFLAGS:+$CFLAGS } -O3"
 	LDFLAGS="${LDFLAGS:+$LDFLAGS }-lpthread"
 
 	ARCH="host"
