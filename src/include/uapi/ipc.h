@@ -557,10 +557,17 @@ struct sof_ipc_comp {
  * Component Buffers
  */
 
+/* types of buffer */
+enum sof_buffer_type {
+	SOF_BUFF_GENERAL = 0,
+	SOF_BUFF_DMA = 1, /* dma buffer */
+};
+
 /* create new component buffer - SOF_IPC_TPLG_BUFFER_NEW */
 struct sof_ipc_buffer {
 	struct sof_ipc_comp comp;
 	uint32_t size;		/* buffer size in bytes */
+	enum sof_buffer_type type;  /* buffer type */
 } __attribute__((packed));
 
 
