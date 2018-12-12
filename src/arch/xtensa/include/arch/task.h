@@ -161,10 +161,11 @@ static void _irq_task(void *arg)
 
 		spin_unlock_irq(&irq_task->lock, flags);
 
-		if (task->func && task->state == TASK_STATE_RUNNING)
+		if (task->func && task->state == TASK_STATE_RUNNING) {
+			schedule_task_complete(task);
 			task->func(task->data);
+		}
 
-		schedule_task_complete(task);
 		spin_lock_irq(&irq_task->lock, flags);
 	}
 

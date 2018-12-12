@@ -84,33 +84,33 @@ PIPELINE_PCM_ADD(sof/pipe-volume-capture.m4,
 
 # Low Latency playback pipeline 9 on PCM 4 using max 2 channels of s16le.
 # Schedule 48 frames per 1000us deadline on core 0 with priority 0
-PIPELINE_PCM_ADD(sof/pipe-volume-playback.m4,
-	9, 4, 2, s16le,
-	48, 1000, 0, 0)
+#PIPELINE_PCM_ADD(sof/pipe-volume-playback.m4,
+#	9, 4, 2, s16le,
+#	48, 1000, 0, 0)
 
 # Low Latency capture pipeline 10 on PCM 4 using max 2 channels of s16le.
 # Schedule 48 frames per 1000us deadline on core 0 with priority 0
-PIPELINE_PCM_ADD(sof/pipe-volume-capture.m4,
-	10, 4, 2, s16le,
-	48, 1000, 0, 0)
+#PIPELINE_PCM_ADD(sof/pipe-volume-capture.m4,
+#	10, 4, 2, s16le,
+#	48, 1000, 0, 0)
 
 # Low Latency playback pipeline 11 on PCM 5 using max 2 channels of s16le.
 # Schedule 48 frames per 1000us deadline on core 0 with priority 0
-PIPELINE_PCM_ADD(sof/pipe-volume-playback.m4,
-	11, 5, 2, s16le,
-	48, 1000, 0, 0)
+#PIPELINE_PCM_ADD(sof/pipe-volume-playback.m4,
+#	11, 5, 2, s16le,
+#	48, 1000, 0, 0)
 
 # Low Latency capture pipeline 12 on PCM 5 using max 2 channels of s16le.
 # Schedule 48 frames per 1000us deadline on core 0 with priority 0
-PIPELINE_PCM_ADD(sof/pipe-volume-capture.m4,
-	12, 5, 2, s16le,
-	48, 1000, 0, 0)
+#PIPELINE_PCM_ADD(sof/pipe-volume-capture.m4,
+#	12, 5, 2, s16le,
+#	48, 1000, 0, 0)
 
 # Passthrough capture pipeline 13 on PCM 6 using max 2 channels.
 # Schedule 48 frames per 1000us deadline on core 0 with priority 0
-PIPELINE_PCM_ADD(sof/pipe-passthrough-capture.m4,
-	13, 6, 2, s32le,
-	48, 1000, 0, 0)
+#PIPELINE_PCM_ADD(sof/pipe-passthrough-capture.m4,
+#	13, 6, 2, s32le,
+#	48, 1000, 0, 0)
 
 #
 # DAIs configuration
@@ -179,48 +179,48 @@ DAI_ADD(sof/pipe-dai-capture.m4,
 
 # playback DAI is SSP4 using 2 periods
 # Buffers use s16le format, with 48 frame per 1000us on core 0 with priority 0
-DAI_ADD(sof/pipe-dai-playback.m4,
-	9, SSP, 4, NoCodec-4,
-	PIPELINE_SOURCE_9, 2, s16le,
-	48, 1000, 0, 0)
+#DAI_ADD(sof/pipe-dai-playback.m4,
+#	9, SSP, 4, NoCodec-4,
+#	PIPELINE_SOURCE_9, 2, s16le,
+#	48, 1000, 0, 0)
 
 # capture DAI is SSP4 using 2 periods
 # Buffers use s16le format, with 48 frame per 1000us on core 0 with priority 0
-DAI_ADD(sof/pipe-dai-capture.m4,
-	10, SSP, 4, NoCodec-4,
-	PIPELINE_SINK_10, 2, s16le,
-	48, 1000, 0, 0)
+#DAI_ADD(sof/pipe-dai-capture.m4,
+#	10, SSP, 4, NoCodec-4,
+#	PIPELINE_SINK_10, 2, s16le,
+#	48, 1000, 0, 0)
 
 # playback DAI is SSP5 using 2 periods
 # Buffers use s16le format, with 48 frame per 1000us on core 0 with priority 0
-DAI_ADD(sof/pipe-dai-playback.m4,
-	11, SSP, 5, NoCodec-5,
-	PIPELINE_SOURCE_11, 2, s16le,
-	48, 1000, 0, 0)
+#DAI_ADD(sof/pipe-dai-playback.m4,
+#	11, SSP, 5, NoCodec-5,
+#	PIPELINE_SOURCE_11, 2, s16le,
+#	48, 1000, 0, 0)
 
 # capture DAI is SSP5 using 2 periods
 # Buffers use s16le format, with 48 frame per 1000us on core 0 with priority 0
-DAI_ADD(sof/pipe-dai-capture.m4,
-	12, SSP, 5, NoCodec-5,
-	PIPELINE_SINK_12, 2, s16le,
-	48, 1000, 0, 0)
+#DAI_ADD(sof/pipe-dai-capture.m4,
+#	12, SSP, 5, NoCodec-5,
+#	PIPELINE_SINK_12, 2, s16le,
+#	48, 1000, 0, 0)
 
 # capture DAI is DMIC 0 using 2 periods
 # Buffers use s32le format, with 48 frame per 1000us on core 0 with priority 0
-DAI_ADD(sof/pipe-dai-capture.m4,
-	13, DMIC, 0, NoCodec-6,
-	PIPELINE_SINK_13, 2, s32le,
-	48, 1000, 0, 0)
+#DAI_ADD(sof/pipe-dai-capture.m4,
+#	13, DMIC, 0, NoCodec-6,
+#	PIPELINE_SINK_13, 2, s32le,
+#	48, 1000, 0, 0)
 
 dnl PCM_DUPLEX_ADD(name, pcm_id, playback, capture)
 PCM_DUPLEX_ADD(Port0, 0, PIPELINE_PCM_1, PIPELINE_PCM_2)
 PCM_DUPLEX_ADD(Port1, 1, PIPELINE_PCM_3, PIPELINE_PCM_4)
 PCM_DUPLEX_ADD(Port2, 2, PIPELINE_PCM_5, PIPELINE_PCM_6)
 PCM_DUPLEX_ADD(Port3, 3, PIPELINE_PCM_7, PIPELINE_PCM_8)
-PCM_DUPLEX_ADD(Port4, 4, PIPELINE_PCM_9, PIPELINE_PCM_10)
-PCM_DUPLEX_ADD(Port5, 5, PIPELINE_PCM_11, PIPELINE_PCM_12)
+#PCM_DUPLEX_ADD(Port4, 4, PIPELINE_PCM_9, PIPELINE_PCM_10)
+#PCM_DUPLEX_ADD(Port5, 5, PIPELINE_PCM_11, PIPELINE_PCM_12)
 dnl PCM_CAPTURE_ADD(name, pipeline, capture)
-PCM_CAPTURE_ADD(DMIC01, 6, PIPELINE_PCM_13)
+#PCM_CAPTURE_ADD(DMIC01, 6, PIPELINE_PCM_13)
 
 #
 # BE configurations - overrides config in ACPI if present
@@ -257,28 +257,28 @@ DAI_CONFIG(SSP, 3, 3, NoCodec-3,
 		      SSP_TDM(2, 16, 3, 3),
 		      SSP_CONFIG_DATA(SSP, 3, 16)))
 
-DAI_CONFIG(SSP, 4, 4, NoCodec-4,
-	   SSP_CONFIG(I2S, SSP_CLOCK(mclk, 24576000, codec_mclk_in),
-		      SSP_CLOCK(bclk, 1536000, codec_slave),
-		      SSP_CLOCK(fsync, 48000, codec_slave),
-		      SSP_TDM(2, 16, 3, 3),
-		      SSP_CONFIG_DATA(SSP, 4, 16)))
+#DAI_CONFIG(SSP, 4, 4, NoCodec-4,
+#	   SSP_CONFIG(I2S, SSP_CLOCK(mclk, 24576000, codec_mclk_in),
+#		      SSP_CLOCK(bclk, 1536000, codec_slave),
+#		      SSP_CLOCK(fsync, 48000, codec_slave),
+#		      SSP_TDM(2, 16, 3, 3),
+#		      SSP_CONFIG_DATA(SSP, 4, 16)))
 
-DAI_CONFIG(SSP, 5, 5, NoCodec-5,
-	   SSP_CONFIG(I2S, SSP_CLOCK(mclk, 24576000, codec_mclk_in),
-		      SSP_CLOCK(bclk, 1536000, codec_slave),
-		      SSP_CLOCK(fsync, 48000, codec_slave),
-		      SSP_TDM(2, 16, 3, 3),
-		      SSP_CONFIG_DATA(SSP, 5, 16)))
+#DAI_CONFIG(SSP, 5, 5, NoCodec-5,
+#	   SSP_CONFIG(I2S, SSP_CLOCK(mclk, 24576000, codec_mclk_in),
+#		      SSP_CLOCK(bclk, 1536000, codec_slave),
+#		      SSP_CLOCK(fsync, 48000, codec_slave),
+#		      SSP_TDM(2, 16, 3, 3),
+#		      SSP_CONFIG_DATA(SSP, 5, 16)))
 
-DAI_CONFIG(DMIC, 0, 6, NoCodec-6,
-	   dnl DMIC_CONFIG(driver_version, clk_min, clk_mac, duty_min, duty_max,
-	   dnl		   sample_rate,
-	   dnl		   fifo word length, type, dai_index, pdm controller config)
-	   DMIC_CONFIG(1, 500000, 4800000, 40, 60, 48000,
-		dnl DMIC_WORD_LENGTH(frame_format)
-		DMIC_WORD_LENGTH(s32le), DMIC, 0,
-		dnl PDM_CONFIG(type, dai_index, num pdm active, pdm tuples list)
-		dnl STEREO_PDM0 is a pre-defined pdm config for stereo capture
-		PDM_CONFIG(DMIC, 0, STEREO_PDM0)))
+#DAI_CONFIG(DMIC, 0, 6, NoCodec-6,
+#	   dnl DMIC_CONFIG(driver_version, clk_min, clk_mac, duty_min, duty_max,
+#	   dnl		   sample_rate,
+#	   dnl		   fifo word length, type, dai_index, pdm controller config)
+#	   DMIC_CONFIG(1, 500000, 4800000, 40, 60, 48000,
+#		dnl DMIC_WORD_LENGTH(frame_format)
+#		DMIC_WORD_LENGTH(s32le), DMIC, 0,
+#		dnl PDM_CONFIG(type, dai_index, num pdm active, pdm tuples list)
+#		dnl STEREO_PDM0 is a pre-defined pdm config for stereo capture
+#		PDM_CONFIG(DMIC, 0, STEREO_PDM0)))
 
