@@ -48,6 +48,8 @@
 #include <sof/idc.h>
 #include <platform/idc.h>
 
+#define XRUN_RECOVERY_ENABLED 0
+
 struct pipeline_data {
 	spinlock_t lock;
 };
@@ -1208,6 +1210,7 @@ static int pipeline_copy(struct comp_dev *dev)
 }
 
 /* recover the pipeline from a XRUN condition */
+#if XRUN_RECOVERY_ENABLED
 static int pipeline_xrun_recover(struct pipeline *p)
 {
 	int ret;
@@ -1257,6 +1260,7 @@ static int pipeline_xrun_recover(struct pipeline *p)
 
 	return 0;
 }
+#endif
 
 /* notify pipeline that this component requires buffers emptied/filled */
 void pipeline_schedule_copy(struct pipeline *p, uint64_t start)
@@ -1295,20 +1299,30 @@ static void pipeline_task(void *arg)
 
 	/* are we in xrun ? */
 	if (p->xrun_bytes) {
+#if XRUN_RECOVERY_ENABLED
 		err = pipeline_xrun_recover(p);
 		if (err < 0)
 			return; /* failed - host will stop this pipeline */
 		goto sched;
+#else
+		return;
+#endif
 	}
 
 	err = pipeline_copy(dev);
 	if (err < 0) {
+#if XRUN_RECOVERY_ENABLED
 		err = pipeline_xrun_recover(p);
 		if (err < 0)
 			return; /* failed - host will stop this pipeline */
+#else
+		return;
+#endif
 	}
 
+#if XRUN_RECOVERY_ENABLED
 sched:
+#endif
 	tracev_pipe("pipeline_task() sched");
 }
 
