@@ -373,7 +373,9 @@ static void hda_dma_post_copy(struct dma *dma, struct hda_chan_data *chan)
 		chan->cb(chan->cb_data, DMA_IRQ_TYPE_LLIST, &next);
 		if (next.size == DMA_RELOAD_END) {
 			/* disable channel, finished */
+			spin_unlock_irq(&dma->lock, flags);
 			hda_dma_stop(dma, chan->index);
+			spin_lock_irq(&dma->lock, flags);
 		}
 
 		spin_unlock_irq(&dma->lock, flags);
@@ -652,7 +654,9 @@ static int hda_dma_start(struct dma *dma, int channel)
 		work_schedule_default(&p->chan[channel].dma_ch_work,
 				      HDA_LINK_1MS_US);
 	} else {
+		spin_unlock_irq(&dma->lock, flags);
 		hda_dma_enable(dma, channel);
+		spin_lock_irq(&dma->lock, flags);
 	}
 
 out:
