@@ -1173,6 +1173,7 @@ void pipeline_xrun(struct pipeline *p, struct comp_dev *dev,
 	int32_t bytes)
 {
 	struct sof_ipc_stream_posn posn;
+	int ret;
 
 	/* don't flood host */
 	if (p->xrun_bytes)
@@ -1181,6 +1182,13 @@ void pipeline_xrun(struct pipeline *p, struct comp_dev *dev,
 	/* only send when we are running */
 	if (dev->state != COMP_STATE_ACTIVE)
 		return;
+
+	/* notify all pipeline comps we are in XRUN, and stop copying */
+	ret = pipeline_trigger(p, p->source_comp, COMP_TRIGGER_XRUN);
+	if (ret < 0) {
+		trace_pipe_error_with_ids(p, "pipeline_xrun() error: "
+					  "Pipelines notification about XRUN "
+					  "failed, ret = %d", ret);
 
 	memset(&posn, 0, sizeof(posn));
 	p->xrun_bytes = posn.xrun_size = bytes;
@@ -1191,6 +1199,10 @@ void pipeline_xrun(struct pipeline *p, struct comp_dev *dev,
 	} else {
 		pipeline_for_each_downstream(p, SOF_COMP_HOST, dev, xrun, &posn);
 	}
+
+//	return ret;
+}
+
 }
 
 /* copy data from upstream source endpoints to downstream endpoints*/
@@ -1209,8 +1221,8 @@ static int pipeline_copy(struct comp_dev *dev)
 	return 0;
 }
 
-/* recover the pipeline from a XRUN condition */
 #if XRUN_RECOVERY_ENABLED
+/* recover the pipeline from a XRUN condition */
 static int pipeline_xrun_recover(struct pipeline *p)
 {
 	int ret;
