@@ -1194,8 +1194,12 @@ static void dw_dma_irq_handler(void *data)
 
 	/* skip if channel is not running */
 	if (p->chan[i].status != COMP_STATE_ACTIVE) {
-		trace_dwdma_error("dw-dma: %d channel %d not running",
-				  dma->plat_data.id, dma_id->channel);
+#if 1
+		trace_dwdma("dw-dma: %d channel %d not running, status_intr:0x%x",
+				  dma->plat_data.id, dma_id->channel, status_intr);
+		trace_dwdma("status_block:0x%x, status_tfr:0x%x, status_err:0x%x",
+				  status_block, status_tfr, status_err);
+#endif
 		return;
 	}
 
@@ -1212,7 +1216,7 @@ static inline int dw_dma_interrupt_register(struct dma *dma, int channel)
 		(channel << SOF_IRQ_BIT_SHIFT);
 	int ret;
 
-	trace_event(TRACE_CLASS_DMA, "dw_dma_interrupt_register()");
+	trace_dwdma_error("dw_dma_interrupt_register(), irq:0x%x", irq);
 
 	ret = interrupt_register(irq, IRQ_AUTO_UNMASK, dw_dma_irq_handler,
 				 &p->chan[channel].id);
@@ -1230,6 +1234,7 @@ static inline void dw_dma_interrupt_unregister(struct dma *dma, int channel)
 	uint32_t irq = dma_irq(dma, cpu_get_id()) +
 		(channel << SOF_IRQ_BIT_SHIFT);
 
+	trace_dwdma_error("dw_dma_interrupt_unregister(), irq:0x%x", irq);
 	interrupt_disable(irq);
 	interrupt_unregister(irq);
 }
