@@ -111,7 +111,7 @@ void ipc_platform_do_cmd(struct ipc *ipc)
 	struct sof_ipc_reply reply;
 	int32_t err;
 
-	trace_ipc("ipc: msg rx -> 0x%x", ipc->host_msg);
+	trace_ipc("ipc: msg rx -> 0x%x, doing", ipc->host_msg);
 
 	/* perform command and return any error */
 	err = ipc_cmd();
@@ -135,6 +135,7 @@ done:
 
 	/* are we about to enter D3 ? */
 	if (iipc->pm_prepare_D3) {
+		trace_ipc_error("Keyon: We will power off memory now!!!!");
 		/* no return - memory will be powered off and IPC sent */
 		platform_pm_runtime_power_off();
 	}
@@ -144,6 +145,8 @@ done:
 
 	/* unmask Busy interrupt */
 	ipc_write(IPC_DIPCCTL, ipc_read(IPC_DIPCCTL) | IPC_DIPCCTL_IPCTBIE);
+
+	trace_ipc("ipc: msg rx -> 0x%x done", ipc->host_msg);
 }
 
 void ipc_platform_send_msg(struct ipc *ipc)
@@ -174,6 +177,7 @@ void ipc_platform_send_msg(struct ipc *ipc)
 	ipc_write(IPC_DIPCIE, 0);
 	ipc_write(IPC_DIPCI, IPC_DIPCI_BUSY | msg->header);
 
+	tracev_ipc("ipc: msg tx -> 0x%x done", msg->header);
 	list_item_append(&msg->list, &ipc->shared_ctx->empty_list);
 
 out:

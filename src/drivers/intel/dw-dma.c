@@ -1167,8 +1167,8 @@ static void dw_dma_irq_handler(void *data)
 
 	status_intr = dw_read(dma, DW_INTR_STATUS);
 	if (!status_intr) {
-		trace_dwdma_error("dw-dma: %d IRQ with no status",
-				  dma->plat_data.id);
+		trace_dwdma_error("dw-dma: %d chan %d IRQ with no status",
+				  dma->plat_data.id, i);
 	}
 
 	tracev_dwdma("dw-dma: %d IRQ status 0x%x", dma->plat_data.id,

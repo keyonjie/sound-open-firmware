@@ -96,7 +96,7 @@ static void dai_buffer_process(struct comp_dev *dev)
 		if (dma_buffer->avail < dd->period_bytes) {
 			trace_dai_error("dai_buffer_process() error: "
 					"Insufficient bytes for next period. "
-					"comp_underrun()");
+					"comp_underrun(), chan:%d", dd->chan);
 			comp_underrun(dev, dma_buffer, dd->period_bytes, 0);
 		}
 	} else {
@@ -112,7 +112,7 @@ static void dai_buffer_process(struct comp_dev *dev)
 		if (dma_buffer->free < dd->period_bytes) {
 			trace_dai_error("dai_buffer_process() error: "
 					"Insufficient free bytes for next "
-					"period. comp_overrun()");
+					"period. comp_overrun(), chan:%d", dd->chan);
 			comp_overrun(dev, dma_buffer, dd->period_bytes, 0);
 		}
 	}
