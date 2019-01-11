@@ -177,7 +177,7 @@ void ipc_platform_send_msg(struct ipc *ipc)
 	ipc_write(IPC_DIPCIE, 0);
 	ipc_write(IPC_DIPCI, IPC_DIPCI_BUSY | msg->header);
 
-	tracev_ipc("ipc: msg tx -> 0x%x done", msg->header);
+	trace_ipc("ipc: msg tx -> 0x%x done", msg->header);
 	list_item_append(&msg->list, &ipc->shared_ctx->empty_list);
 
 out:

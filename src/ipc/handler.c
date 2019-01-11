@@ -443,6 +443,7 @@ int ipc_stream_send_xrun(struct comp_dev *cdev,
 	posn->comp_id = cdev->comp.id;
 
 	mailbox_stream_write(cdev->pipeline->posn_offset, posn, sizeof(*posn));
+	trace_ipc("ipc_stream_send_xrun()");
 	return ipc_queue_host_message(_ipc, posn->rhdr.hdr.cmd, posn,
 				      sizeof(*posn), 0);
 }

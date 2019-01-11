@@ -137,17 +137,27 @@ static void dai_dma_cb(void *data, uint32_t type, struct dma_sg_elem *next)
 
 	/* stop dma copy for pause/stop/xrun */
 	if (dev->state != COMP_STATE_ACTIVE || dd->xrun) {
+//	if (dev->state != COMP_STATE_ACTIVE) {
 
 		/* stop the DAI */
 		dai_trigger(dd->dai, COMP_TRIGGER_STOP, dev->params.direction);
 
 		/* tell DMA not to reload */
 		next->size = DMA_RELOAD_END;
+//		return;
 	}
 
+#if 1
 	/* is our pipeline handling an XRUN ? */
 	if (dd->xrun) {
 
+#if 0
+		/* stop the DAI */
+		dai_trigger(dd->dai, COMP_TRIGGER_STOP, dev->params.direction);
+
+		/* tell DMA not to reload */
+		next->size = DMA_RELOAD_END;
+#endif
 		/* make sure we only playback silence during an XRUN */
 		if (dev->params.direction == SOF_IPC_STREAM_PLAYBACK) {
 
@@ -159,6 +169,7 @@ static void dai_dma_cb(void *data, uint32_t type, struct dma_sg_elem *next)
 		}
 		return;
 	}
+#endif
 
 	dai_buffer_process(dev);
 
@@ -468,7 +479,8 @@ static int dai_prepare(struct comp_dev *dev)
 	if (dd->xrun) {
 		/* after prepare, we have recovered from xrun */
 		dd->xrun = 0;
-		return ret;
+		trace_dai("dai_prepare() from xrun, done");
+//		return ret;
 	}
 
 	ret = dma_set_config(dd->dma, dd->chan, &dd->config);
@@ -640,6 +652,21 @@ static int dai_copy(struct comp_dev *dev)
 {
 	struct dai_data *dd = comp_get_drvdata(dev);
 	int ret;
+	struct comp_buffer *source;
+	static int m = 5000;
+
+	/*HACK for xrun debug */
+	if (m++ == 10000) {
+//		if (0) {
+	//		dev->pipeline->xrun_bytes = 1;
+	//	if (0) {
+		m = 0;
+	source = list_first_item(&dev->bsource_list,
+				 struct comp_buffer, sink_list);
+			trace_dai_error("Keyon: hack for xrun debug!");
+			comp_underrun(dev, source, 3* dd->period_bytes, 0);
+			return -EIO;	/* xrun */
+		}
 
 	if (dd->pointer_init == DAI_PTR_INIT_HOST) {
 		/* start the DAI */

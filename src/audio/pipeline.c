@@ -206,9 +206,16 @@ static void pipeline_trigger_sched_comp(struct pipeline *p,
 
 	switch (cmd) {
 	case COMP_TRIGGER_PAUSE:
-	case COMP_TRIGGER_STOP:
 		pipeline_schedule_cancel(p);
 		p->status = COMP_STATE_PAUSED;
+		break;
+#if !XRUN_RECOVERY_ENABLED
+	/* in case we stop pipeline at xrun */
+	case COMP_TRIGGER_XRUN:
+#endif
+	case COMP_TRIGGER_STOP:
+		pipeline_schedule_cancel(p);
+		p->status = COMP_STATE_PREPARE;
 		break;
 	case COMP_TRIGGER_RELEASE:
 	case COMP_TRIGGER_START:
@@ -227,7 +234,6 @@ static void pipeline_trigger_sched_comp(struct pipeline *p,
 		break;
 	case COMP_TRIGGER_SUSPEND:
 	case COMP_TRIGGER_RESUME:
-	case COMP_TRIGGER_XRUN:
 	default:
 		break;
 	}
@@ -367,7 +373,7 @@ static int component_op_downstream(struct op_data *op_data,
 	struct list_item *clist;
 	int err = 0;
 
-	tracev_pipe("component_op_downstream(), current->comp.id = %u",
+	trace_pipe("component_op_downstream(), current->comp.id = %u",
 		    current->comp.id);
 
 	/* do operation on this component */
@@ -437,6 +443,8 @@ static int component_op_downstream(struct op_data *op_data,
 			break;
 	}
 
+	trace_pipe("component_op_downstream(), current->comp.id = %u, done.",
+		    current->comp.id);
 	return err;
 }
 
@@ -767,7 +775,69 @@ int pipeline_trigger(struct pipeline *p, struct comp_dev *host, int cmd)
 	int ret;
 	uint32_t flags;
 
-	trace_pipe_with_ids(p, "pipeline_trigger()");
+	trace_pipe_error_with_ids(p, "pipeline_trigger()");
+
+	switch (cmd) {
+	case COMP_TRIGGER_START:
+	case COMP_TRIGGER_RELEASE:
+		if (p->status == COMP_STATE_ACTIVE) {
+			trace_pipe_with_ids(p, "pipeline_trigger(): "
+					    "already active,"
+					    "won't trigger start again.");
+			return 0;
+		}
+		break;
+	case COMP_TRIGGER_STOP:
+		/* for xrun, let's make sure we are in prepare */
+		if (p->status == COMP_STATE_PREPARE &&
+		    p->xrun_bytes) {
+			/* prepare the pipeline */
+			ret = pipeline_prepare(p, p->source_comp);
+			if (ret < 0) {
+				trace_pipe_error_with_ids(p, "pipeline_xrun_recover() error: "
+							  "pipeline_prepare() failed, ret = %d",
+							  ret);
+				return ret;
+			}
+			p->xrun_bytes = 0;
+		}
+			
+		/* fallthrough */
+	case COMP_TRIGGER_XRUN:
+		if (p->status == COMP_STATE_PREPARE) {
+			trace_pipe_with_ids(p, "pipeline_trigger(): "
+					    "already stopped,"
+					    "won't trigger stop again.");
+			return 0;
+		}
+		break;
+	case COMP_TRIGGER_PAUSE:
+		if (p->status == COMP_STATE_PAUSED) {
+			trace_pipe_with_ids(p, "pipeline_trigger(): "
+					    "already paused,"
+					    "won't trigger pause again.");
+			return 0;
+		}
+		break;
+	case COMP_TRIGGER_RESET:
+		if (p->status == COMP_STATE_READY) {
+			trace_pipe_with_ids(p, "pipeline_trigger(): "
+					    "already in ready,"
+					    "won't trigger reset again.");
+			return 0;
+		}
+		break;
+	case COMP_TRIGGER_PREPARE:
+		if (p->status == COMP_STATE_PREPARE) {
+			trace_pipe_with_ids(p, "pipeline_trigger(): "
+					    "already in prepared,"
+					    "won't trigger prepare again.");
+			return 0;
+		}
+	default:
+		break;
+	}
+
 
 	/* if current core is different than requested */
 	if (p->ipc_pipe.core != cpu_get_id())
@@ -794,6 +864,7 @@ int pipeline_trigger(struct pipeline *p, struct comp_dev *host, int cmd)
 	}
 
 	spin_unlock_irq(&p->lock, flags);
+	trace_pipe_error_with_ids(p, "pipeline_trigger() done, ret:%d", ret);
 	return ret;
 }
 
@@ -1104,6 +1175,7 @@ static void xrun(struct comp_dev *dev, void *data)
 {
 	struct sof_ipc_stream_posn *posn = data;
 
+	trace_pipe_error_with_ids(dev->pipeline, "xrun()");
 	/* get host timestamps */
 	platform_host_timestamp(dev, posn);
 
@@ -1175,6 +1247,7 @@ void pipeline_xrun(struct pipeline *p, struct comp_dev *dev,
 	struct sof_ipc_stream_posn posn;
 	int ret;
 
+	trace_pipe_error_with_ids(p, "pipeline_xrun(), xrun_bytes:0x%x, state:%d", p->xrun_bytes, dev->state);
 	/* don't flood host */
 	if (p->xrun_bytes)
 		return;
@@ -1189,11 +1262,14 @@ void pipeline_xrun(struct pipeline *p, struct comp_dev *dev,
 		trace_pipe_error_with_ids(p, "pipeline_xrun() error: "
 					  "Pipelines notification about XRUN "
 					  "failed, ret = %d", ret);
-
+		}
+	trace_pipe_error_with_ids(p, "direction:%d, type:%d", dev->params.direction, dev->comp.type);
 	memset(&posn, 0, sizeof(posn));
-	p->xrun_bytes = posn.xrun_size = bytes;
+//	p->xrun_bytes = posn.xrun_size = bytes;
+	p->xrun_bytes = 1;
 	posn.xrun_comp_id = dev->comp.id;
 
+	trace_pipe_error_with_ids(p, "direction:%d, type:%d", dev->params.direction, dev->comp.type);
 	if (dev->params.direction == SOF_IPC_STREAM_PLAYBACK) {
 		pipeline_for_each_upstream(p, SOF_COMP_HOST, dev, xrun, &posn);
 	} else {
@@ -1201,7 +1277,7 @@ void pipeline_xrun(struct pipeline *p, struct comp_dev *dev,
 	}
 
 //	return ret;
-}
+//}
 
 }
 
